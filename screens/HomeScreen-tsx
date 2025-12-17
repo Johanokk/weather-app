@@ -1,0 +1,42 @@
+import { View, Text, TextInput, Button } from "react-native";
+import { useState } from "react";
+import { fetchWeather } from "../api/weatherApi";
+
+export default function HomeScreen() {
+  const [city, setCity] = useState("");
+  const [result, setResult] = useState("");
+
+  const handleSearch = async () => {
+    try {
+      const data = await fetchWeather(city);
+
+      let condition = "Normal weather";
+      if (data.main.temp < 0) condition = "Very cold";
+      else if (data.main.temp > 25) condition = "Hot weather";
+      else if (data.wind.speed > 10) condition = "Very windy";
+
+      setResult(
+        `City: ${data.name}
+Temperature: ${data.main.temp} °C
+Weather: ${data.weather[0].description}
+Wind: ${data.wind.speed} m/s
+Condition: ${condition}`
+      );
+    } catch {
+      setResult("Could not fetch weather");
+    }
+  };
+
+  return (
+    <View style={{ padding: 20 }}>
+      <TextInput
+        placeholder="Enter city"
+        value={city}
+        onChangeText={setCity}
+        style={{ borderWidth: 1, padding: 8, marginBottom: 10 }}
+      />
+      <Button title="Get weather" onPress={handleSearch} />
+      <Text style={{ marginTop: 20 }}>{result}</Text>
+    </View>
+  );
+}
